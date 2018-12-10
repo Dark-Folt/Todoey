@@ -11,28 +11,14 @@ import UIKit
 class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
-    let defaults = UserDefaults.standard //Maintenant on peut utiliser userDefaults
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         
-        
-        let item = Item()
-        item.titile = "Find Mike"
-        
-        itemArray.append(item)
+        loadItems()
 
-        
-        let item1 = Item()
-        item1.titile = "Manger mon gars"
-
-        
-        if let items = defaults.array(forKey: "TodoListArray") as? [Item] {
-            itemArray = items
-        }
-        
         
     }
     
@@ -71,8 +57,8 @@ class TodoListViewController: UITableViewController {
    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        saveItems() //Je l'appelle pour enregistrer le bool associé
 
-        tableView.reloadData()
         tableView.deselectRow(at: indexPath, animated: true) // faire disparaitre la selection grise
     
     }
@@ -92,17 +78,13 @@ class TodoListViewController: UITableViewController {
             newItem.titile = alertTextField.text!
             
             self.itemArray.append(newItem)
-
-            /*Je vais enregister mon tableau*/
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            
+            self.saveItems() //e l'appelle pour savegarder l'item et non pas le boolean assisié
 
             /*
              J'ai mis for key donc logement pour acceder dans cette base de donné je dois utiliser cette Key
              Pour cela on va aller dans le view deadload ensuite cibler nos éléments
              */
-            
-            self.tableView.reloadData()
-            
         }
         
         alert.addTextField { (textField) in
@@ -114,6 +96,44 @@ class TodoListViewController: UITableViewController {
         
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
+        
+    }
+    
+    
+    //MARK - Save Items
+    
+    private func saveItems() {
+        /*Je vais enregister mon tableau*/
+        let encoder = PropertyListEncoder()
+        
+        
+        /*Maitenant je peux essayer d'encoder mes element*/
+        do {
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath!)
+        } catch {
+            print("Error: \(error)")
+        }
+        
+        self.tableView.reloadData()
+    }
+    
+    private func loadItems() {
+
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+           
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            }catch{
+                print("Error: \(error)")
+            }
+            
+            
+            
+            /*J'ai encode mes éléments et maintenant je vais les décodé*/
+        }
+        
         
     }
 
