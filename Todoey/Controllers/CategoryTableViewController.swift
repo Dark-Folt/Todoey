@@ -29,9 +29,9 @@ class CategoryTableViewController: UITableViewController {
         
         var alertTextField = UITextField()
         
-        let alert = UIAlertController(title: "Category", message: "Ajouter une category pour la representation de votre liste", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Categories", message: "Ajouter des categories selon vos préférences.", preferredStyle: .alert)
         
-        let action = UIAlertAction(title: "Ajouter", style: .default) { (UIAlertAction) in
+        let saveAction = UIAlertAction(title: "Ajouter", style: .default) { (UIAlertAction) in
             
             let newCategory = Category(context: self.context)
             
@@ -43,8 +43,6 @@ class CategoryTableViewController: UITableViewController {
             //Une fois que j'ai fais tout ça et bah je vais le sauvegarder
             self.saveCategory()
             
-            
-            
         }
         
         alert.addTextField { (textField) in
@@ -53,7 +51,10 @@ class CategoryTableViewController: UITableViewController {
             alertTextField = textField
         }
         
-        alert.addAction(action)
+        let cancelAction = UIAlertAction(title: "Annuler", style: .cancel, handler: nil)
+        
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
         present(alert, animated: true, completion: nil)
         
         
